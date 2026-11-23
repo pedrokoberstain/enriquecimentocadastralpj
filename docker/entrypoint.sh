@@ -16,4 +16,4 @@ printf 'APP_KEY=%s\n' "$APP_KEY" > .env
 
 php artisan migrate --force --no-interaction
 
-exec php artisan serve --host=0.0.0.0 --port=8000
+exec php artisan serve --host=0.0.0.0 --port=8000 --no-reload
