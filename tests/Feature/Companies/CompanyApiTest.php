@@ -16,12 +16,12 @@ class CompanyApiTest extends TestCase
 
     private const CNPJ = '11222333000181';
 
-    public function test_a_company_can_be_consulted_and_saved_from_brasilapi(): void
+    public function test_empresa_pode_ser_consultada_e_salva_pela_brasilapi(): void
     {
         $user = User::factory()->create();
         $team = $user->currentTeam;
         Http::fake([
-            'https://brasilapi.com.br/api/cnpj/v1/*' => Http::response($this->companyData(), 200),
+            'https://brasilapi.com.br/api/cnpj/v1/*' => Http::response($this->dadosDaEmpresa(), 200),
         ]);
 
         $response = $this->actingAs($user)->postJson(
@@ -53,7 +53,7 @@ class CompanyApiTest extends TestCase
             'razao_social' => 'Empresa Exemplo Ltda.',
         ]);
         $this->assertSame(
-            $this->companyData(),
+            $this->dadosDaEmpresa(),
             Company::query()->where('team_id', $team->id)->firstOrFail()->dados_cadastrais,
         );
 
@@ -61,7 +61,7 @@ class CompanyApiTest extends TestCase
             'https://brasilapi.com.br/api/cnpj/v1/'.self::CNPJ);
     }
 
-    public function test_refresh_updates_the_saved_company_data(): void
+    public function test_atualizacao_renova_os_dados_salvos(): void
     {
         $user = User::factory()->create();
         $team = $user->currentTeam;
@@ -73,7 +73,7 @@ class CompanyApiTest extends TestCase
         ]);
         Http::fake([
             'https://brasilapi.com.br/api/cnpj/v1/*' => Http::response(
-                $this->companyData(['razao_social' => 'Nome Atualizado Ltda.']),
+                $this->dadosDaEmpresa(['razao_social' => 'Nome Atualizado Ltda.']),
                 200,
             ),
         ]);
@@ -87,7 +87,7 @@ class CompanyApiTest extends TestCase
         $this->assertTrue($company->fresh()->last_synced_at->isToday());
     }
 
-    public function test_invalid_cnpj_is_rejected_without_calling_brasilapi(): void
+    public function test_cnpj_invalido_e_rejeitado_sem_consultar_brasilapi(): void
     {
         $user = User::factory()->create();
         $team = $user->currentTeam;
@@ -102,7 +102,7 @@ class CompanyApiTest extends TestCase
         $this->assertDatabaseCount('companies', 0);
     }
 
-    public function test_company_records_are_scoped_to_the_requested_team(): void
+    public function test_empresas_ficam_restritas_a_equipe_solicitada(): void
     {
         $user = User::factory()->create();
         $team = $user->currentTeam;
@@ -120,7 +120,7 @@ class CompanyApiTest extends TestCase
             ->assertNotFound();
     }
 
-    public function test_guests_cannot_use_the_companies_api(): void
+    public function test_usuario_nao_autenticado_nao_acessa_a_api_de_empresas(): void
     {
         $team = Team::factory()->create();
 
@@ -128,7 +128,7 @@ class CompanyApiTest extends TestCase
             ->assertUnauthorized();
     }
 
-    public function test_company_list_can_filter_and_paginate_results(): void
+    public function test_listagem_filtra_e_pagina_empresas(): void
     {
         $user = User::factory()->create();
         $team = $user->currentTeam;
@@ -199,7 +199,7 @@ class CompanyApiTest extends TestCase
             ->assertJsonPath('meta.current_page', 2);
     }
 
-    public function test_company_list_rejects_invalid_pagination_parameters(): void
+    public function test_listagem_rejeita_parametros_de_paginacao_invalidos(): void
     {
         $user = User::factory()->create();
         $team = $user->currentTeam;
@@ -211,10 +211,10 @@ class CompanyApiTest extends TestCase
     }
 
     /**
-     * @param  array<string, mixed>  $overrides
+     * @param  array<string, mixed>  $sobrescritos
      * @return array<string, mixed>
      */
-    private function companyData(array $overrides = []): array
+    private function dadosDaEmpresa(array $sobrescritos = []): array
     {
         return array_merge([
             'cnpj' => self::CNPJ,
@@ -223,6 +223,6 @@ class CompanyApiTest extends TestCase
             'descricao_situacao_cadastral' => 'ATIVA',
             'municipio' => 'São Paulo',
             'uf' => 'SP',
-        ], $overrides);
+        ], $sobrescritos);
     }
 }

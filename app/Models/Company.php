@@ -33,21 +33,13 @@ use Illuminate\Support\Carbon;
 ])]
 class Company extends Model
 {
-    /**
-     * Get the team that owns the company record.
-     *
-     * @return BelongsTo<Team, $this>
-     */
+    /** @return BelongsTo<Team, $this> */
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
