@@ -33,9 +33,6 @@ class Team extends Model
     /** @use HasFactory<TeamFactory> */
     use GeneratesUniqueTeamSlugs, HasFactory, SoftDeletes;
 
-    /**
-     * Bootstrap the model and its traits.
-     */
     protected static function boot(): void
     {
         parent::boot();
@@ -53,9 +50,6 @@ class Team extends Model
         });
     }
 
-    /**
-     * Get the team owner.
-     */
     public function owner(): ?Model
     {
         return $this->members()
@@ -63,11 +57,7 @@ class Team extends Model
             ->first();
     }
 
-    /**
-     * Get all members of this team.
-     *
-     * @return BelongsToMany<User, $this, Membership, 'pivot'>
-     */
+    /** @return BelongsToMany<User, $this, Membership, 'pivot'> */
     public function members(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'team_members', 'team_id', 'user_id')
@@ -76,41 +66,25 @@ class Team extends Model
             ->withTimestamps();
     }
 
-    /**
-     * Get all memberships for this team.
-     *
-     * @return HasMany<Membership, $this>
-     */
+    /** @return HasMany<Membership, $this> */
     public function memberships(): HasMany
     {
         return $this->hasMany(Membership::class);
     }
 
-    /**
-     * Get all invitations for this team.
-     *
-     * @return HasMany<TeamInvitation, $this>
-     */
+    /** @return HasMany<TeamInvitation, $this> */
     public function invitations(): HasMany
     {
         return $this->hasMany(TeamInvitation::class);
     }
 
-    /**
-     * Get all companies registered for this team.
-     *
-     * @return HasMany<Company, $this>
-     */
+    /** @return HasMany<Company, $this> */
     public function companies(): HasMany
     {
         return $this->hasMany(Company::class);
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
@@ -118,9 +92,6 @@ class Team extends Model
         ];
     }
 
-    /**
-     * Get the route key for the model.
-     */
     public function getRouteKeyName(): string
     {
         return 'slug';

@@ -15,11 +15,35 @@ class CompanyController extends Controller
 {
     public function __construct(private readonly BrasilApiClient $brasilApi) {}
 
-    public function index(Team $team): JsonResponse
+    public function index(Request $request, Team $team): JsonResponse
     {
-        $companies = $team->companies()
+        $filters = $request->validate([
+            'uf' => ['sometimes', 'nullable', 'alpha', 'size:2'],
+            'municipio' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'situacao_cadastral' => ['sometimes', 'nullable', 'string', 'max:100'],
+            'page' => ['sometimes', 'integer', 'min:1'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+        ]);
+
+        $query = $team->companies();
+
+        if (isset($filters['uf'])) {
+            $query->where('uf', strtoupper($filters['uf']));
+        }
+
+        if (isset($filters['municipio'])) {
+            $query->whereRaw('LOWER(municipio) = ?', [mb_strtolower($filters['municipio'])]);
+        }
+
+        if (isset($filters['situacao_cadastral'])) {
+            $query->whereRaw('LOWER(situacao_cadastral) = ?', [mb_strtolower($filters['situacao_cadastral'])]);
+        }
+
+        $companies = $query
             ->orderByDesc('last_synced_at')
-            ->paginate(15);
+            ->orderByDesc('id')
+            ->paginate($filters['per_page'] ?? 15)
+            ->withQueryString();
 
         return CompanyResource::collection($companies)->response();
     }

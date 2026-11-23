@@ -9,11 +9,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class BrasilApiClient
 {
-    /**
-     * Retrieve current company registration data from BrasilAPI.
-     *
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function consult(string $cnpj): array
     {
         try {
