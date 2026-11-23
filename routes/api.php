@@ -4,7 +4,11 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['web', 'auth', 'verified', EnsureTeamMembership::class])
+$middleware = app()->isLocal()
+    ? []
+    : ['web', 'auth', 'verified', EnsureTeamMembership::class];
+
+Route::middleware($middleware)
     ->prefix('teams/{team}/companies')
     ->group(function () {
         Route::get('/', [CompanyController::class, 'index'])->name('api.companies.index');

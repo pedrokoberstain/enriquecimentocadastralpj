@@ -1,10 +1,36 @@
 # enriquecimentocadastralpj
 
+## Executar com Docker
+
+É necessário ter o Docker Desktop instalado. No Prompt de Comando, na pasta do
+projeto, copie a configuração e inicie os containers:
+
+```cmd
+copy .env.docker.example .env.docker
+docker compose --env-file .env.docker up --build
+```
+
+O comando inicia a aplicação PHP, gera os assets, cria as tabelas no MySQL e
+mantém os dados em volumes Docker. Acesse `http://localhost:8000`. Para parar,
+use `Ctrl+C` ou execute `docker compose --env-file .env.docker down`.
+
+Para criar uma equipe local para consultar a API, execute uma vez:
+
+```cmd
+docker compose --env-file .env.docker exec app php artisan db:seed
+```
+
+As senhas de `.env.docker.example` são apenas para desenvolvimento local. O
+serviço MySQL não publica portas no computador e a aplicação fica limitada ao
+acesso local.
+
 ## API de consulta de empresas
 
 A API consulta a [BrasilAPI](https://brasilapi.com.br/) e mantém uma cópia dos
-dados cadastrais por equipe. As rotas exigem uma sessão autenticada e verificada
-da aplicação; cada usuário só pode acessar equipes das quais participa.
+dados cadastrais por equipe. Fora do ambiente local, as rotas exigem uma sessão
+autenticada e verificada; cada usuário só acessa equipes das quais participa.
+No ambiente local, a autenticação é desativada para facilitar os testes. Não
+use `APP_ENV=local` em produção.
 
 Configure `BRASILAPI_URL` no ambiente (por padrão:
 `https://brasilapi.com.br/api`), execute `php artisan migrate` e use o slug da
